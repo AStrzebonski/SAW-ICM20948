@@ -1,0 +1,2 @@
+add_library(bsp_interface INTERFACE)
+target_include_directories(bsp_interface INTERFACE include)
