@@ -1,0 +1,10 @@
+[
+    {
+        "name": "x86_64",
+        "toolchainFile": "${workspaceFolder}/bsp/x86_64/toolchain.cmake"
+    },
+    {
+        "name": "Sensor Link Utility Tool F767ZI",
+        "toolchainFile": "${workspaceFolder}/bsp/slut-f767zi/toolchain.cmake"
+    }
+]
