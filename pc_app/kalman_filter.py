@@ -42,19 +42,3 @@ class KalmanFilter:
         K = np.dot(np.dot(self.Ppri, np.transpose(self.C)), S ** (-1))
         self.xpost = self.xpri + np.dot(K, eps)
         self.Ppost = self.Ppri - np.dot(np.dot(K, S), np.transpose(K))
-
-
-# class PositionCalculator:
-#
-#     def __init__(self, dt, std_dev_v, std_dev_w, A, C, x0, P0):
-#         self.V = std_dev_v*dt
-#         self.W = std_dev_w ** 2
-#         self.A = A.copy()
-#         self.C = C.copy()
-#         self.x0 = x0.copy()
-#         self.P0 = P0.copy()
-#         self.xpri, self.xpost = x0.copy()
-#         self.Ppri, self.Ppost = P0.copy()
-#
-#     def predict(self):
-
