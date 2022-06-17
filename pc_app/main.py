@@ -40,10 +40,10 @@ if __name__ == '__main__':
     ay_list = np.array([0, 0, 0, 0, 0, 0])
 
     # Kalman Filters init:
-    theta_filter = KalmanFilter(V_turn.copy(), W, A_turn, B_turn, C_turn, x0_roll, P0_roll)
-    phi_filter = KalmanFilter(V_turn.copy(), W, A_turn, B_turn, C_turn, x0_roll, P0_roll)
-    mx_filter = KalmanFilter(V_move.copy(), W, A_move, B_move, C_move, x0_m, P0_m)
-    my_filter = KalmanFilter(V_move.copy(), W, A_move, B_move, C_move, x0_m, P0_m)
+    theta_filter = KalmanFilter(V_turn.copy(), W * 3, A_turn, B_turn, C_turn, x0_roll, P0_roll)
+    phi_filter = KalmanFilter(V_turn.copy(), W * 3, A_turn, B_turn, C_turn, x0_roll, P0_roll)
+    mx_filter = KalmanFilter(V_move.copy(), W / 10, A_move, B_move, C_move, x0_m, P0_m)
+    my_filter = KalmanFilter(V_move.copy(), W / 10, A_move, B_move, C_move, x0_m, P0_m)
 
     ser = serial_init(rate=115200, port='COM7')
 
@@ -61,9 +61,9 @@ if __name__ == '__main__':
         uy = uy_
 
         # conversion to rad/s * tuning factor
-        ux = ux * 0.0010642 * 3.1
-        uy = -uy * 0.0010642 * 3.1
-        uz = -uz * 0.0010642 * 3.1
+        ux = ux * 0.0010642 * 6
+        uy = -uy * 0.0010642 * 6
+        uz = -uz * 0.0010642 * 6
         # gravity estimation
         g += 0.2 * (np.sqrt(np.square(ax) + np.square(ay) + np.square(az)) - g)
 
@@ -85,8 +85,8 @@ if __name__ == '__main__':
 
         theta_filter.update(theta_pri)
         phi_filter.update(phi_pri)
-        mx_filter.update(vmx)
-        my_filter.update(vmy)
+        mx_filter.update(np.array([vmx]))
+        my_filter.update(np.array([vmy]))
         theta = theta_filter.xpost[0, 0].copy()
         phi = phi_filter.xpost[0, 0].copy()
 
@@ -95,14 +95,22 @@ if __name__ == '__main__':
         ay_list = np.append(ay_list, amy)
         ay_list = np.delete(ay_list, 0)
 
-
-        if np.var(ax_list) < 1000:
+        if np.var(ax_list) < 1800:
             vmx = 0
-            mx_filter.xpost = 0
-        if np.var(ax_list) < 1000:
+            mx_filter.xpost = np.array([0])
+        if np.var(ax_list) < 1800:
             vmy = 0
-            my_filter.xpost = 0
+            my_filter.xpost = np.array([0])
 
-        mouse.move(mx_filter.xpost, my_filter.xpost, absolute=False, duration=dt/5)
+        if type(mx_filter.xpost) == np.ndarray:
+            vx_filtered = mx_filter.xpost[0]
+        else:
+            vx_filtered = mx_filter.xpost
+        if type(my_filter.xpost) == np.ndarray:
+            vy_filtered = my_filter.xpost[0]
+        else:
+            vy_filtered = my_filter.xpost
+
+        mouse.move(vx_filtered, vy_filtered, absolute=False, duration=dt/5)
 
         print('x: \t', mx_filter.xpost, 'y: \t', my_filter.xpost, 'phi: \t', phi, 'theta: \t', theta)
