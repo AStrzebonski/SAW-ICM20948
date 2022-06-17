@@ -1,0 +1,2 @@
+add_library(sensor_interface INTERFACE)
+target_include_directories(sensor_interface INTERFACE include)
